@@ -1,0 +1,24 @@
+# Виртуальное окружение
+.venv/
+venv/
+ENV/
+
+# Кэш Python и тестов
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# База данных SQLite (пересоздастся сама при запуске main.py)
+*.db
+*.db-wal
+*.db-shm
+
+# Настройки IDE / редакторов
+.vscode/
+.idea/
+*.swp
+
+# Логи и временные файлы
+*.log
+.DS_Store

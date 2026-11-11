@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Частная клиника «МедЛайн»</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --navy: #143b52;
+            --teal: #167d82;
+            --teal-dark: #11676c;
+            --mint: #e7f5f2;
+            --ink: #223746;
+            --muted: #647987;
+            --line: #dce7eb;
+            --paper: #fff;
+            --canvas: #f3f7f8;
+            --danger: #a63d43;
+            --shadow: 0 12px 32px rgb(23 61 78 / 8%);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--canvas);
+            color: var(--ink);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; }
+        .site-header {
+            min-height: 76px;
+            padding: 14px clamp(18px, 5vw, 72px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            color: var(--paper);
+            background: var(--navy);
+            box-shadow: 0 3px 14px rgb(20 59 82 / 15%);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgb(255 255 255 / 28%);
+            border-radius: 13px;
+            color: #b7ece2;
+            font-size: 25px;
+            font-weight: 700;
+        }
+        .brand-name { font-size: 18px; font-weight: 700; letter-spacing: .02em; }
+        .brand-caption { margin-top: 3px; color: #c1d5df; font-size: 12px; }
+        .employee-bar { display: flex; align-items: center; gap: 14px; }
+        .workspace-links { display: flex; align-items: center; gap: 8px; }
+        .workspace-links a { color: #d7eeed; font-size: 12px; white-space: nowrap; }
+        .login-card .workspace-links a { color: var(--teal-dark); }
+        .refresh-bar { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 22px 14px; color: var(--muted); font-size: 12px; }
+        .price-amount { color: var(--teal-dark); font-size: 16px; font-weight: 750; white-space: nowrap; }
+        .employee-name { font-weight: 600; }
+        .role-pill, .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--mint);
+            color: var(--teal-dark);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .button {
+            min-height: 42px;
+            padding: 10px 16px;
+            border: 0;
+            border-radius: 9px;
+            background: var(--teal);
+            color: #fff;
+            font-weight: 650;
+            transition: background .15s ease, transform .15s ease;
+        }
+        .button:hover { background: var(--teal-dark); transform: translateY(-1px); }
+        .button-secondary { border: 1px solid var(--line); background: #fff; color: var(--navy); }
+        .button-secondary:hover { background: #f4faf9; color: var(--navy); }
+        .button-quiet { min-height: 34px; padding: 7px 10px; font-size: 12px; }
+        .button-danger { background: var(--danger); }
+        .button-danger:hover { background: #873238; }
+        main { width: 100%; flex: 1; }
+        .login-wrap {
+            min-height: calc(100vh - 142px);
+            padding: 36px 18px;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(ellipse at 18% 20%, rgb(183 236 226 / 35%), transparent 32%),
+                var(--canvas);
+        }
+        .login-card, .panel {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--paper);
+            box-shadow: var(--shadow);
+        }
+        .login-card { width: min(100%, 440px); padding: 34px; }
+        .login-symbol {
+            width: 54px;
+            height: 54px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            background: var(--mint);
+            color: var(--teal-dark);
+            font-size: 30px;
+        }
+        h1, h2, h3, p { margin-top: 0; }
+        .login-card h1 { margin: 20px 0 7px; color: var(--navy); font-size: 25px; }
+        .intro, .muted { color: var(--muted); line-height: 1.55; }
+        .login-note {
+            margin-top: 20px;
+            padding: 12px 14px;
+            border-radius: 9px;
+            background: #f3f8fa;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .workspace { display: flex; flex-direction: column; min-height: calc(100vh - 76px); }
+        .tab-bar {
+            display: flex;
+            gap: 6px;
+            padding: 0 clamp(16px, 5vw, 72px);
+            overflow-x: auto;
+            border-bottom: 1px solid var(--line);
+            background: var(--paper);
+        }
+        .tab-button {
+            display: none;
+            padding: 17px 18px 14px;
+            border: 0;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            color: var(--muted);
+            font-weight: 650;
+            white-space: nowrap;
+        }
+        .tab-button:hover, .tab-button.active { color: var(--teal-dark); }
+        .tab-button.active { border-bottom-color: var(--teal); }
+        .content { width: min(1240px, 100%); margin: 0 auto; padding: 30px 22px 48px; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: appear .18s ease-out; }
+        @keyframes appear { from { opacity: .4; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+        .page-heading { margin: 0 0 6px; color: var(--navy); font-size: 24px; }
+        .page-subtitle { margin-bottom: 23px; color: var(--muted); }
+        .panel { margin-bottom: 20px; padding: 23px; }
+        .panel-heading {
+            margin: 0 0 18px;
+            padding-bottom: 13px;
+            border-bottom: 1px solid var(--line);
+            color: var(--navy);
+            font-size: 17px;
+        }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+        .stat-card { padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdfd; }
+        .stat-number { display: block; margin-bottom: 5px; color: var(--teal-dark); font-size: 25px; font-weight: 750; }
+        .stat-label { color: var(--muted); font-size: 13px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 7px; }
+        .field label { color: #405865; font-size: 13px; font-weight: 650; }
+        .field input, .field select, .field textarea {
+            width: 100%;
+            min-height: 43px;
+            padding: 10px 12px;
+            border: 1px solid #cbd9df;
+            border-radius: 8px;
+            outline: 0;
+            background: #fff;
+            color: var(--ink);
+        }
+        .field textarea { min-height: 94px; resize: vertical; }
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgb(22 125 130 / 12%);
+        }
+        .form-actions { margin-top: 18px; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 13px; border-bottom: 1px solid #e8eef0; text-align: left; vertical-align: middle; }
+        th { background: #f5f9fa; color: var(--muted); font-size: 11px; letter-spacing: .045em; text-transform: uppercase; }
+        td { font-size: 13px; }
+        tbody tr:hover { background: #fbfdfd; }
+        .table-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+        .empty-row { padding: 22px; color: var(--muted); text-align: center; }
+        .notice {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 5;
+            max-width: min(440px, calc(100vw - 32px));
+            padding: 14px 18px;
+            border: 1px solid #b9ddd6;
+            border-radius: 10px;
+            background: #effaf6;
+            box-shadow: var(--shadow);
+            color: #175c50;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+            transition: .2s ease;
+        }
+        .notice.visible { opacity: 1; transform: none; }
+        .notice.error { border-color: #edc6c6; background: #fff5f4; color: #8c3237; }
+        footer { padding: 18px; background: var(--navy); color: #c1d5df; font-size: 12px; text-align: center; }
+        @media (max-width: 640px) {
+            .site-header { align-items: flex-start; }
+            .brand-caption { display: none; }
+            .employee-bar { flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+            .employee-name { max-width: 145px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .role-pill { display: none; }
+            .workspace-links { display: none; }
+            .login-card { padding: 25px; }
+            .panel { padding: 17px; }
+            .content { padding: 22px 14px 36px; }
+        }
+    </style>
+</head>
+<body>
+    {% if user %}
+    <header class="site-header">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">+</div>
+            <div>
+                <div class="brand-name">МедЛайн</div>
+                <div class="brand-caption">Частная клиника · забота и точность</div>
+            </div>
+        </div>
+        <div class="employee-bar">
+            <span class="employee-name">{{ user.full_name }}</span>
+            <span class="role-pill" id="roleLabel"></span>
+            <div class="workspace-links" aria-label="Отдельные рабочие места">
+                <a href="/register/" target="_blank" rel="noopener">Регистратура</a>
+                <a href="/doctor/" target="_blank" rel="noopener">Врач</a>
+                <a href="/admin/" target="_blank" rel="noopener">Администратор</a>
+            </div>
+            <button class="button button-secondary button-quiet" id="refreshButton" type="button">Обновить</button>
+            <button class="button button-danger button-quiet" id="logoutButton" type="button">Выйти</button>
+        </div>
+    </header>
+    {% endif %}
+
+    <main>
+        {% if not user %}
+        <section class="login-wrap">
+            <div class="login-card">
+                <div class="login-symbol" aria-hidden="true">+</div>
+                <h1>{% if workspace %}Вход: {{ {"admin": "Администратор", "register": "Регистратура", "doctor": "Кабинет врача"}[workspace] }}{% else %}Вход в клинику{% endif %}</h1>
+                <p class="intro">Войдите под своей учётной записью для работы в медицинской системе.</p>
+                <form id="loginForm">
+                    <div class="field">
+                        <label for="loginInput">Логин</label>
+                        <input id="loginInput" name="login" autocomplete="username" required>
+                    </div>
+                    <div class="field" style="margin-top: 14px">
+                        <label for="passwordInput">Пароль</label>
+                        <input id="passwordInput" name="password" type="password" autocomplete="current-password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button class="button" type="submit" style="width: 100%">Войти</button>
+                    </div>
+                </form>
+                <p class="muted" style="margin:18px 0 0;font-size:13px">Открыть отдельное рабочее место в другой вкладке:</p>
+                <div class="workspace-links" style="margin-top:8px">
+                    <a href="/register/">Регистратура</a>
+                    <a href="/doctor/">Кабинет врача</a>
+                    <a href="/admin/">Администратор</a>
+                </div>
+                <div class="login-note">Первичный доступ главного врача: <strong>admin</strong> / <strong>admin123</strong></div>
+            </div>
+        </section>
+        {% else %}
+        <div class="workspace">
+            <nav class="tab-bar" aria-label="Разделы клиники">
+                {% if user.role == "Admin" %}
+                <button class="tab-button" data-tab="administration">Обзор клиники</button>
+                {% endif %}
+                {% if user.role in ["Admin", "Registrar"] %}
+                <button class="tab-button" data-tab="registry">Регистратура</button>
+                <button class="tab-button" data-tab="journal">Журнал записей</button>
+                {% endif %}
+                {% if user.role in ["Admin", "Doctor"] %}
+                <button class="tab-button" data-tab="doctor">Кабинет врача</button>
+                {% endif %}
+            </nav>
+
+            <div class="content">
+                {% if user.role == "Admin" %}
+                <section class="tab-panel" id="tab-administration">
+                    <h1 class="page-heading">Обзор клиники</h1>
+                    <p class="page-subtitle">Сводная информация и управление командой.</p>
+                    <div class="panel">
+                        <h2 class="panel-heading">Рабочие показатели</h2>
+                        <div class="stats">
+                            <div class="stat-card"><span class="stat-number">{{ patient_registry.total }}</span><span class="stat-label">Записей в картотеке</span></div>
+                            <div class="stat-card"><span class="stat-number">{{ schedule|length }}</span><span class="stat-label">Записей в журнале</span></div>
+                            <div class="stat-card"><span class="stat-number">{{ employees|length }}</span><span class="stat-label">Сотрудников клиники</span></div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-heading">Регистрация сотрудника</h2>
+                        <form id="staffForm">
+                            <div class="form-grid">
+                                <div class="field"><label for="staffName">ФИО сотрудника</label><input id="staffName" name="full_name" required minlength="3" maxlength="160" placeholder="Фамилия Имя Отчество" autocomplete="name"></div>
+                                <div class="field"><label for="staffSpecialty">Специальность или отдел</label><input id="staffSpecialty" name="specialty" required minlength="2" maxlength="120" placeholder="Например: терапевт" value="" autocomplete="organization-title"></div>
+                                <div class="field"><label for="staffIin">ИИН сотрудника — 12 цифр</label><input id="staffIin" name="employee_iin" inputmode="numeric" pattern="[0-9]{12}" minlength="12" maxlength="12" placeholder="012345678901" required></div>
+                                <div class="field"><label for="staffRole">Должность</label><select id="staffRole" name="role" required><option value="Doctor">Врач</option><option value="Registrar">Регистратор</option></select></div>
+                                <div class="field" id="cabinetField"><label for="staffCabinet">Номер кабинета</label><input id="staffCabinet" name="cabinet" type="number" min="1" max="9999" placeholder="Например: 101"></div>
+                                <div class="field"><label for="staffLogin">Логин для входа (создаётся автоматически)</label><input id="staffLogin" aria-label="Логин для входа будет создан автоматически" readonly></div>
+                                <div class="field"><label for="staffPassword">Пароль для входа — минимум 8 символов</label><input id="staffPassword" name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password" placeholder="Не короче 8 символов"></div>
+                            </div>
+                            <p class="muted" style="margin:14px 0 0">ИИН должен быть уникальным. Для врача укажите незанятый кабинет от 1 до 9999. Для регистратора отдел заполнится автоматически.</p>
+                            <div class="form-actions"><button class="button" type="submit">Добавить сотрудника</button></div>
+                        </form>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-heading">Сотрудники клиники</h2>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>ФИО</th><th>ИИН</th><th>Должность</th><th>Специальность / отдел</th><th>Кабинет</th><th>Логин</th><th>Действие</th></tr></thead>
+                                <tbody id="employeeRows">
+                                    {% for employee in employees %}
+                                    <tr>
+                                        <td>{{ employee.full_name }}</td>
+                                        <td>
+                                            <form class="staffIinForm" data-employee-id="{{ employee.id }}">
+                                                <input aria-label="ИИН сотрудника {{ employee.full_name }}" inputmode="numeric" pattern="[0-9]{12}" minlength="12" maxlength="12" value="{{ employee.employee_iin or '' }}" placeholder="12 цифр" required>
+                                                <button class="button button-quiet" type="submit">{{ "Изменить" if employee.employee_iin else "Внести" }}</button>
+                                            </form>
+                                        </td>
+                                        <td>{{ "Врач" if employee.role == "Doctor" else "Регистратор" if employee.role == "Registrar" else "Администратор" }}</td>
+                                        <td>{{ employee.specialty }}</td>
+                                        <td>{{ employee.cabinet or "—" }}</td>
+                                        <td>{{ employee.login }}</td>
+                                        <td>
+                                            {% if employee.role != "Admin" and employee.id != user.id %}
+                                            <button class="button button-danger button-quiet" type="button" data-delete-employee="{{ employee.id }}" data-employee-name="{{ employee.full_name }}">Удалить</button>
+                                            {% else %}—{% endif %}
+                                        </td>
+                                    </tr>
+                                    {% else %}<tr><td class="empty-row" colspan="7">Сотрудников пока нет.</td></tr>{% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-heading">Прайс-лист медицинских услуг</h2>
+                        <p class="muted">Услуги доступны врачам всех направлений. Укажите специальность, если цена относится только к определённому профилю.</p>
+                        <form id="priceForm">
+                            <input id="priceId" type="hidden">
+                            <div class="form-grid">
+                                <div class="field"><label for="priceName">Услуга</label><input id="priceName" required minlength="2" maxlength="160" placeholder="Например, первичная консультация"></div>
+                                <div class="field"><label for="priceSpecialty">Специальность (необязательно)</label><input id="priceSpecialty" maxlength="120" placeholder="Пусто — для всех врачей"></div>
+                                <div class="field"><label for="priceAmount">Стоимость, тенге</label><input id="priceAmount" type="number" min="1" max="100000000" step="1" required placeholder="Например, 8000"></div>
+                                <div class="field"><label for="priceDescription">Описание</label><input id="priceDescription" maxlength="1000" placeholder="Что входит в услугу"></div>
+                            </div>
+                            <div class="form-actions">
+                                <button class="button" type="submit" id="priceSubmit">Добавить в прайс-лист</button>
+                                <button class="button button-secondary" type="button" id="priceCancel" hidden>Отменить изменение</button>
+                            </div>
+                        </form>
+                        <div class="table-wrap" style="margin-top:18px">
+                            <table>
+                                <thead><tr><th>Услуга</th><th>Направление</th><th>Стоимость</th><th>Описание</th><th>Действие</th></tr></thead>
+                                <tbody id="adminPriceRows">
+                                    {% for service in price_list %}
+                                    <tr>
+                                        <td>{{ service.name }}</td>
+                                        <td>{{ service.specialty or "Все направления" }}</td>
+                                        <td class="price-amount">{{ "{:,.0f}".format(service.price_kzt).replace(",", " ") }} ₸</td>
+                                        <td>{{ service.description or "—" }}</td>
+                                        <td><div class="table-actions"><button class="button button-secondary button-quiet" type="button" data-edit-price="{{ service.id }}" data-name="{{ service.name }}" data-specialty="{{ service.specialty }}" data-price="{{ service.price_kzt }}" data-description="{{ service.description }}">Изменить</button><button class="button button-danger button-quiet" type="button" data-delete-price="{{ service.id }}" data-price-name="{{ service.name }}">Удалить</button></div></td>
+                                    </tr>
+                                    {% else %}<tr><td class="empty-row" colspan="5">Прайс-лист пока не заполнен.</td></tr>{% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% include "medical_documents_table.html" %}
+                </section>
+                {% endif %}
+
+                {% if user.role in ["Admin", "Registrar"] %}
+                <section class="tab-panel" id="tab-registry">
+                    <h1 class="page-heading">Регистратура</h1>
+                    <p class="page-subtitle">Оформление карт пациентов и запись на консультации.</p>
+                    <div class="panel">
+                        <h2 class="panel-heading">Оформление нового пациента</h2>
+                        <form id="patientForm">
+                            <div class="form-grid">
+                                <div class="field"><label for="patientName">ФИО пациента</label><input id="patientName" required minlength="3" maxlength="160"></div>
+                                <div class="field"><label for="patientIin">ИИН</label><input id="patientIin" inputmode="numeric" pattern="[0-9]{12}" minlength="12" maxlength="12" required></div>
+                                <div class="field"><label for="patientBirthDate">Дата рождения</label><input id="patientBirthDate" type="date" required></div>
+                                <div class="field"><label for="patientPhone">Телефон</label><input id="patientPhone" type="tel" autocomplete="tel" placeholder="+7" required></div>
+                            </div>
+                            <div class="form-actions"><button class="button" type="submit">Оформить медицинскую карту</button></div>
+                        </form>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-heading">Запись пациента на приём</h2>
+                        <form id="appointmentForm">
+                            <div class="form-grid">
+                                <div class="field"><label for="appointmentPatientSearch">Найти пациента по ФИО, ИИН или медкарте</label><input id="appointmentPatientSearch" type="search" maxlength="120" placeholder="Начните вводить данные пациента"></div>
+                                <div class="field"><label for="appointmentPatient">Выберите пациента</label><select id="appointmentPatient" required><option value="">Сначала найдите пациента</option></select></div>
+                                <div class="field"><label for="appointmentDoctor">Врач</label><select id="appointmentDoctor" required><option value="">Выберите врача</option>{% for doctor in doctors %}<option value="{{ doctor.id }}">{{ doctor.full_name }} · {{ doctor.specialty }} · каб. {{ doctor.cabinet }}</option>{% endfor %}</select></div>
+                                <div class="field"><label for="appointmentTime">Дата и время</label><input id="appointmentTime" type="datetime-local" required></div>
+                            </div>
+                            <div class="form-actions"><button class="button" type="submit">Подтвердить запись</button></div>
+                        </form>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-heading">Картотека пациентов и история направлений</h2>
+                        <p class="muted">Поиск по ФИО, ИИН, телефону, медкарте или врачу. В таблице отображаются только 10 записей на страницу.</p>
+                        <div class="form-grid" style="margin-bottom:16px">
+                            <div class="field"><label for="registrySearch">Поиск по картотеке</label><input id="registrySearch" type="search" maxlength="120" placeholder="ФИО, ИИН, телефон, медкарта, врач"></div>
+                            <div class="field"><label for="registryStatus">Статус приёма</label><select id="registryStatus"><option value="">Все статусы</option><option value="Ожидает записи">Ожидает записи</option><option value="Запланирован">Запланирован</option><option value="Приём завершён">Приём завершён</option><option value="Отменён">Отменён</option></select></div>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Зарегистрирован</th><th>Пациент</th><th>ИИН</th><th>Дата рождения</th><th>Телефон</th><th>Медкарта</th><th>Врач</th><th>Приём</th><th>Статус</th></tr></thead>
+                                <tbody id="patientRegistryRows">
+                                    {% for entry in patient_registry["items"] %}
+                                    <tr>
+                                        <td>{{ entry.registered_at }}</td>
+                                        <td>{{ entry.full_name }}</td>
+                                        <td>{{ entry.iin }}</td>
+                                        <td>{{ entry.birth_date }}</td>
+                                        <td>{{ entry.phone }}</td>
+                                        <td>{{ entry.med_card_num }}</td>
+                                        <td>{% if entry.doctor_name %}{{ entry.doctor_name }} · {{ entry.doctor_specialty }} · каб. {{ entry.cabinet }}{% else %}—{% endif %}</td>
+                                        <td>{{ entry.appointment_time or "—" }}</td>
+                                        <td><span class="status-pill">{{ entry.appointment_status or "Ожидает записи" }}</span></td>
+                                    </tr>
+                                    {% else %}<tr class="empty-patient-registry"><td class="empty-row" colspan="9">Пациенты по выбранным условиям не найдены.</td></tr>{% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="form-actions" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                            <button class="button button-secondary" id="registryPrevious" type="button" disabled>Назад</button>
+                            <span class="muted" id="registryPageInfo">Страница {{ patient_registry.page }} из {{ [1, (patient_registry.total / patient_registry.page_size)|round(0, 'ceil')|int]|max }} · записей: {{ patient_registry.total }}</span>
+                            <button class="button button-secondary" id="registryNext" type="button" {% if patient_registry.total <= patient_registry.page_size %}disabled{% endif %}>Далее</button>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if user.role in ["Admin", "Registrar"] %}
+                <section class="tab-panel" id="tab-journal">
+                    <h1 class="page-heading">Журнал записей</h1>
+                    <p class="page-subtitle">Актуальное расписание консультаций клиники.</p>
+                    {% with show_actions = false %}{% include "appointment_table.html" %}{% endwith %}
+                </section>
+                {% endif %}
+
+                {% if user.role in ["Admin", "Doctor"] %}
+                <section class="tab-panel" id="tab-doctor">
+                    <h1 class="page-heading">Кабинет врача</h1>
+                    <p class="page-subtitle">План приёмов, актуальный прайс-лист и оформление медицинских документов.</p>
+                    {% with show_actions = true %}{% include "appointment_table.html" %}{% endwith %}
+                    <div class="panel">
+                        <h2 class="panel-heading">Прайс-лист клиники</h2>
+                        <p class="muted">Актуальные цены на услуги вашего направления и общие услуги клиники.</p>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Услуга</th><th>Направление</th><th>Стоимость</th><th>Описание</th></tr></thead>
+                                <tbody id="doctorPriceRows">
+                                    {% for service in price_list %}
+                                    <tr><td>{{ service.name }}</td><td>{{ service.specialty or "Все направления" }}</td><td class="price-amount">{{ "{:,.0f}".format(service.price_kzt).replace(",", " ") }} ₸</td><td>{{ service.description or "—" }}</td></tr>
+                                    {% else %}<tr><td class="empty-row" colspan="4">Администратор ещё не добавил услуги.</td></tr>{% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h2 class="panel-heading">Электронный рецепт или направление</h2>
+                        <form id="documentForm">
+                            <div class="form-grid">
+                                <div class="field"><label for="documentPatientSearch">Найти пациента по ФИО, ИИН или медкарте</label><input id="documentPatientSearch" type="search" maxlength="120" placeholder="Начните вводить данные пациента"></div>
+                                <div class="field"><label for="documentPatient">Выберите пациента</label><select id="documentPatient" required><option value="">Сначала найдите пациента</option></select></div>
+                                <div class="field"><label for="documentType">Вид документа</label><select id="documentType" required><option value="Рецепт">Электронный рецепт</option><option value="Направление">Направление</option></select></div>
+                                <div class="field"><label for="documentPartner">Получатель</label><select id="documentPartner" required><option value="">Выберите организацию</option>{% for partner in partners %}<option value="{{ partner.id }}">{{ partner.name }} · {{ partner.partner_type }}</option>{% endfor %}</select></div>
+                            </div>
+                            <div class="field" style="margin-top: 16px"><label for="documentDetails">Назначение или цель направления</label><textarea id="documentDetails" required minlength="3" maxlength="2000" placeholder="Укажите назначение врача"></textarea></div>
+                            <div class="form-actions"><button class="button" type="submit">Подписать и передать</button></div>
+                        </form>
+                    </div>
+                    {% include "medical_documents_table.html" %}
+                </section>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% if user %}<div class="refresh-bar"><span id="lastRefresh">Данные обновляются автоматически</span></div>{% endif %}
+    </main>
+
+    <footer>© 2026 · Информационная система частной клиники «МедЛайн»</footer>
+    <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+    <script>
+        const currentUser = {% if user %}{{ user|tojson }}{% else %}null{% endif %};
+        const workspacePrefix = {{ (("/" + workspace) if workspace else "") | tojson }};
+        const roleNames = {Admin: "Администратор", Registrar: "Регистратор", Doctor: "Врач"};
+        const transliteration = {
+            а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo",
+            ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m",
+            н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u",
+            ф: "f", х: "h", ц: "ts", ч: "ch", ш: "sh", щ: "sch", ъ: "",
+            ы: "y", ь: "", э: "e", ю: "yu", я: "ya", ә: "a", ғ: "g",
+            қ: "q", ң: "n", ө: "o", ұ: "u", ү: "u", һ: "h", і: "i"
+        };
+        let noticeTimer;
+        let lastRefreshErrorAt = 0;
+        let registryPage = 1;
+        const registryPageSize = 10;
+        let registrySearchTimer;
+        const patientSearchTokens = {appointmentPatient: 0, documentPatient: 0};
+
+        function escapeHTML(value) {
+            return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+            })[character]);
+        }
+
+        function showNotice(message, isError = false) {
+            const notice = document.getElementById("notice");
+            notice.textContent = message;
+            notice.classList.toggle("error", isError);
+            notice.classList.add("visible");
+            window.clearTimeout(noticeTimer);
+            noticeTimer = window.setTimeout(() => notice.classList.remove("visible"), 4200);
+        }
+
+        async function clinicRequest(url, method = "GET", data = null) {
+            const options = {method, headers: {}, credentials: "same-origin"};
+            if (data !== null) {
+                options.headers["Content-Type"] = "application/json";
+                options.body = JSON.stringify(data);
+            }
+            const response = await fetch(`${workspacePrefix}${url}`, options);
+            let result;
+            try {
+                result = await response.json();
+            } catch (error) {
+                throw new Error("Не удалось получить ответ клиники. Повторите попытку.");
+            }
+            if (!response.ok) {
+                throw new Error(result.detail || "Не удалось выполнить операцию. Повторите попытку.");
+            }
+            return result;
+        }
+
+        function activateFirstTab() {
+            const firstButton = document.querySelector(".tab-button");
+            if (firstButton) firstButton.click();
+        }
+
+        document.querySelectorAll(".tab-button").forEach((button) => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".tab-button").forEach((item) => item.classList.remove("active"));
+                document.querySelectorAll(".tab-panel").forEach((item) => item.classList.remove("active"));
+                button.classList.add("active");
+                document.getElementById(`tab-${button.dataset.tab}`)?.classList.add("active");
+            });
+        });
+
+        function renderAppointments(appointments) {
+            for (const [tbodyId, canAct] of [
+                ["appointmentRowsJournal", false],
+                ["appointmentRowsDoctor", currentUser.role === "Admin" || currentUser.role === "Doctor"]
+            ]) {
+                const tbody = document.getElementById(tbodyId);
+                if (!tbody) continue;
+                tbody.innerHTML = appointments.length ? appointments.map((item) => {
+                    const actions = canAct && item.status === "Запланирован"
+                        ? `<td><div class="table-actions"><button class="button button-quiet" type="button" data-appointment-id="${item.id}" data-appointment-status="Приём завершён">Завершить</button><button class="button button-danger button-quiet" type="button" data-appointment-id="${item.id}" data-appointment-status="Отменён">Отменить</button></div></td>`
+                        : (canAct ? "<td>—</td>" : "");
+                    return `<tr><td>${escapeHTML(item.appointment_time)}</td><td>${escapeHTML(item.patient_name)}</td><td><span class="status-pill">${escapeHTML(item.med_card_num)}</span></td><td>${escapeHTML(item.doctor_name)} · ${escapeHTML(item.doctor_specialty)}</td><td>${escapeHTML(item.cabinet)}</td><td>${escapeHTML(item.status)}</td>${actions}</tr>`;
+                }).join("") : `<tr><td class="empty-row" colspan="${canAct ? 7 : 6}">Записей пока нет.</td></tr>`;
+            }
+        }
+
+        function renderPatientRegistry(pageData) {
+            const tbody = document.getElementById("patientRegistryRows");
+            if (!tbody) return;
+            const entries = pageData.items || [];
+            tbody.innerHTML = entries.length ? entries.map((entry) => {
+                const doctor = entry.doctor_name
+                    ? `${entry.doctor_name} · ${entry.doctor_specialty} · каб. ${entry.cabinet}`
+                    : "—";
+                return `<tr><td>${escapeHTML(entry.registered_at)}</td><td>${escapeHTML(entry.full_name)}</td><td>${escapeHTML(entry.iin)}</td><td>${escapeHTML(entry.birth_date)}</td><td>${escapeHTML(entry.phone)}</td><td>${escapeHTML(entry.med_card_num)}</td><td>${escapeHTML(doctor)}</td><td>${escapeHTML(entry.appointment_time || "—")}</td><td><span class="status-pill">${escapeHTML(entry.appointment_status || "Ожидает записи")}</span></td></tr>`;
+            }).join("") : '<tr><td class="empty-row" colspan="9">Пациенты по выбранным условиям не найдены.</td></tr>';
+            const pageCount = Math.max(1, Math.ceil(pageData.total / registryPageSize));
+            const pageInfo = document.getElementById("registryPageInfo");
+            if (pageInfo) {
+                pageInfo.textContent = `Страница ${pageData.page} из ${pageCount} · записей: ${pageData.total}`;
+            }
+            const previous = document.getElementById("registryPrevious");
+            const next = document.getElementById("registryNext");
+            if (previous) previous.disabled = pageData.page <= 1;
+            if (next) next.disabled = pageData.page >= pageCount;
+            registryPage = pageData.page;
+        }
+
+        function updateSelect(id, items, label, format, preferredValue = "") {
+            const select = document.getElementById(id);
+            if (!select) return;
+            const previous = preferredValue || select.value;
+            select.replaceChildren(new Option(label, ""));
+            for (const item of items) {
+                select.add(new Option(format(item), String(item.id)));
+            }
+            if (items.some((item) => String(item.id) === previous)) {
+                select.value = previous;
+            }
+        }
+
+        async function searchPatientOptions(inputId, selectId) {
+            const input = document.getElementById(inputId);
+            const select = document.getElementById(selectId);
+            if (!input || !select) return;
+            const token = ++patientSearchTokens[selectId];
+            const query = new URLSearchParams({search: input.value.trim()});
+            try {
+                const patients = await clinicRequest(`/api/patient-search?${query}`);
+                if (token !== patientSearchTokens[selectId]) return;
+                const selected = select.value;
+                select.replaceChildren(new Option(
+                    patients.length ? "Выберите пациента" : "Пациенты не найдены",
+                    "",
+                ));
+                for (const patient of patients) {
+                    select.add(new Option(
+                        `${patient.full_name} · ${patient.med_card_num}`,
+                        String(patient.id),
+                    ));
+                }
+                if (patients.some((patient) => String(patient.id) === selected)) {
+                    select.value = selected;
+                }
+            } catch (error) {
+                if (token === patientSearchTokens[selectId]) showNotice(error.message, true);
+            }
+        }
+
+        function attachPatientSearch(inputId, selectId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            let timer;
+            input.addEventListener("input", () => {
+                window.clearTimeout(timer);
+                timer = window.setTimeout(
+                    () => searchPatientOptions(inputId, selectId),
+                    250,
+                );
+            });
+            searchPatientOptions(inputId, selectId);
+        }
+
+        function formatPrice(price) {
+            return `${new Intl.NumberFormat("ru-RU").format(price)} ₸`;
+        }
+
+        function renderPrices(prices) {
+            const adminRows = document.getElementById("adminPriceRows");
+            if (adminRows) {
+                adminRows.innerHTML = prices.length ? prices.map((item) =>
+                    `<tr><td>${escapeHTML(item.name)}</td><td>${escapeHTML(item.specialty || "Все направления")}</td><td class="price-amount">${formatPrice(item.price_kzt)}</td><td>${escapeHTML(item.description || "—")}</td><td><div class="table-actions"><button class="button button-secondary button-quiet" type="button" data-edit-price="${item.id}" data-name="${escapeHTML(item.name)}" data-specialty="${escapeHTML(item.specialty)}" data-price="${item.price_kzt}" data-description="${escapeHTML(item.description)}">Изменить</button><button class="button button-danger button-quiet" type="button" data-delete-price="${item.id}" data-price-name="${escapeHTML(item.name)}">Удалить</button></div></td></tr>`
+                ).join("") : '<tr><td class="empty-row" colspan="5">Прайс-лист пока не заполнен.</td></tr>';
+            }
+            const doctorRows = document.getElementById("doctorPriceRows");
+            if (doctorRows) {
+                doctorRows.innerHTML = prices.length ? prices.map((item) =>
+                    `<tr><td>${escapeHTML(item.name)}</td><td>${escapeHTML(item.specialty || "Все направления")}</td><td class="price-amount">${formatPrice(item.price_kzt)}</td><td>${escapeHTML(item.description || "—")}</td></tr>`
+                ).join("") : '<tr><td class="empty-row" colspan="4">Администратор ещё не добавил услуги.</td></tr>';
+            }
+        }
+
+        function renderEmployees(employees) {
+            const tbody = document.getElementById("employeeRows");
+            if (!tbody) return;
+            tbody.innerHTML = employees.length ? employees.map((employee) => {
+                const role = {Admin: "Администратор", Doctor: "Врач", Registrar: "Регистратор"}[employee.role];
+                const action = employee.role !== "Admin" && employee.id !== currentUser.id
+                    ? `<button class="button button-danger button-quiet" type="button" data-delete-employee="${employee.id}" data-employee-name="${escapeHTML(employee.full_name)}">Удалить</button>`
+                    : "—";
+                return `<tr><td>${escapeHTML(employee.full_name)}</td><td><form class="staffIinForm" data-employee-id="${employee.id}"><input aria-label="ИИН сотрудника ${escapeHTML(employee.full_name)}" inputmode="numeric" pattern="[0-9]{12}" minlength="12" maxlength="12" value="${escapeHTML(employee.employee_iin || "")}" placeholder="12 цифр" required><button class="button button-quiet" type="submit">${employee.employee_iin ? "Изменить" : "Внести"}</button></form></td><td>${role}</td><td>${escapeHTML(employee.specialty)}</td><td>${escapeHTML(employee.cabinet || "—")}</td><td>${escapeHTML(employee.login)}</td><td>${action}</td></tr>`;
+            }).join("") : '<tr><td class="empty-row" colspan="7">Сотрудников пока нет.</td></tr>';
+        }
+
+        function renderDocuments(documents) {
+            const tbody = document.getElementById("medicalDocumentRows");
+            if (!tbody) return;
+            tbody.innerHTML = documents.length ? documents.map((document) =>
+                `<tr><td>${escapeHTML(document.created_at)}</td><td>${escapeHTML(document.document_type)}</td><td>${escapeHTML(document.patient_name)}</td><td>${escapeHTML(document.med_card_num)}</td><td>${escapeHTML(document.doctor_name)}</td><td>${escapeHTML(document.organization)}</td><td>${escapeHTML(document.details)}</td><td><span class="status-pill">${escapeHTML(document.status)}</span></td></tr>`
+            ).join("") : '<tr><td class="empty-row" colspan="8">Переданных документов пока нет.</td></tr>';
+        }
+
+        async function refreshLiveData(showErrors = false) {
+            if (!currentUser) return;
+            try {
+                const query = new URLSearchParams({
+                    registry_page: String(registryPage),
+                    registry_search: document.getElementById("registrySearch")?.value.trim() || "",
+                    registry_status: document.getElementById("registryStatus")?.value || "",
+                });
+                const data = await clinicRequest(`/api/live-data?${query}`);
+                renderAppointments(data.appointments || []);
+                if (data.patient_registry) renderPatientRegistry(data.patient_registry);
+                renderPrices(data.price_list || []);
+                renderEmployees(data.employees || []);
+                renderDocuments(data.medical_documents || []);
+                updateSelect("appointmentDoctor", data.doctors || [], "Выберите врача",
+                    (doctor) => `${doctor.full_name} · ${doctor.specialty} · каб. ${doctor.cabinet}`);
+                const lastRefresh = document.getElementById("lastRefresh");
+                if (lastRefresh) {
+                    lastRefresh.textContent = `Обновлено: ${new Intl.DateTimeFormat("ru-RU", {timeStyle: "medium"}).format(new Date())}`;
+                }
+                lastRefreshErrorAt = 0;
+            } catch (error) {
+                const now = Date.now();
+                if (showErrors || now - lastRefreshErrorAt > 20000) {
+                    showNotice(error.message, true);
+                    lastRefreshErrorAt = now;
+                }
+            }
+        }
+
+        if (currentUser) {
+            document.getElementById("roleLabel").textContent = roleNames[currentUser.role] || "Сотрудник";
+            activateFirstTab();
+            refreshLiveData();
+            attachPatientSearch("appointmentPatientSearch", "appointmentPatient");
+            attachPatientSearch("documentPatientSearch", "documentPatient");
+            window.setInterval(() => refreshLiveData(), 4000);
+        }
+
+        document.getElementById("refreshButton")?.addEventListener("click", () => refreshLiveData(true));
+        document.getElementById("registrySearch")?.addEventListener("input", () => {
+            window.clearTimeout(registrySearchTimer);
+            registrySearchTimer = window.setTimeout(() => {
+                registryPage = 1;
+                refreshLiveData(true);
+            }, 250);
+        });
+        document.getElementById("registryStatus")?.addEventListener("change", () => {
+            registryPage = 1;
+            refreshLiveData(true);
+        });
+        document.getElementById("registryPrevious")?.addEventListener("click", () => {
+            if (registryPage > 1) {
+                registryPage -= 1;
+                refreshLiveData(true);
+            }
+        });
+        document.getElementById("registryNext")?.addEventListener("click", () => {
+            registryPage += 1;
+            refreshLiveData(true);
+        });
+        document.getElementById("loginForm")?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            try {
+                await clinicRequest("/auth/login", "POST", {
+                    login: document.getElementById("loginInput").value,
+                    password: document.getElementById("passwordInput").value
+                });
+                window.location.reload();
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+
+        document.getElementById("logoutButton")?.addEventListener("click", async () => {
+            try {
+                await clinicRequest("/auth/logout", "POST");
+                window.location.reload();
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+
+        const staffRole = document.getElementById("staffRole");
+        if (staffRole) {
+            const cabinet = document.getElementById("staffCabinet");
+            const cabinetField = document.getElementById("cabinetField");
+            const staffName = document.getElementById("staffName");
+            const updateLoginPreview = () => {
+                const name = Array.from(staffName.value.trim().toLowerCase())
+                    .map((character) => transliteration[character] ?? character)
+                    .join("").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48) || "staff";
+                staffLogin.value = `${staffRole.value === "Doctor" ? "doctor" : "registrar"}-${name}`;
+            };
+            const updateCabinetRequirement = () => {
+                const doctorSelected = staffRole.value === "Doctor";
+                cabinet.required = doctorSelected;
+                cabinet.type = doctorSelected ? "number" : "text";
+                cabinet.readOnly = !doctorSelected;
+                cabinet.value = doctorSelected ? "" : "Регистратура";
+                cabinet.placeholder = doctorSelected ? "Например, 101" : "";
+                cabinetField.querySelector("label").textContent = doctorSelected ? "Номер кабинета" : "Отдел";
+                updateLoginPreview();
+            };
+            staffRole.addEventListener("change", updateCabinetRequirement);
+            staffName.addEventListener("input", updateLoginPreview);
+            updateCabinetRequirement();
+        }
+
+        document.getElementById("staffForm")?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            try {
+                const created = await clinicRequest("/api/staff", "POST", {
+                    full_name: document.getElementById("staffName").value,
+                    specialty: document.getElementById("staffSpecialty").value,
+                    employee_iin: document.getElementById("staffIin").value,
+                    cabinet: staffRole.value === "Doctor" ? Number(document.getElementById("staffCabinet").value) : "Регистратура",
+                    role: staffRole.value,
+                    password: document.getElementById("staffPassword").value
+                });
+                event.target.reset();
+                staffRole.dispatchEvent(new Event("change"));
+                showNotice(`Сотрудник добавлен. Логин для входа: ${created.login}`);
+                await refreshLiveData(true);
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+
+        document.getElementById("patientForm")?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            try {
+                const patient = await clinicRequest("/api/patients", "POST", {
+                    full_name: document.getElementById("patientName").value,
+                    iin: document.getElementById("patientIin").value,
+                    birth_date: document.getElementById("patientBirthDate").value,
+                    phone: document.getElementById("patientPhone").value
+                });
+                const patientOption = new Option(
+                    `${patient.full_name} · ${patient.med_card_num}`,
+                    String(patient.id),
+                    true,
+                    true,
+                );
+                const patientSelect = document.getElementById("appointmentPatient");
+                patientSelect.replaceChildren(patientOption);
+                document.getElementById("appointmentPatientSearch").value =
+                    `${patient.full_name} · ${patient.med_card_num}`;
+                event.target.reset();
+                await refreshLiveData(true);
+                showNotice(`Медицинская карта ${patient.med_card_num} оформлена.`);
+                document.getElementById("appointmentForm")?.scrollIntoView({behavior: "smooth", block: "center"});
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+
+        document.getElementById("appointmentForm")?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            try {
+                await clinicRequest("/api/appointments", "POST", {
+                    patient_id: Number(document.getElementById("appointmentPatient").value),
+                    doctor_id: Number(document.getElementById("appointmentDoctor").value),
+                    appointment_time: document.getElementById("appointmentTime").value
+                });
+                event.target.reset();
+                showNotice("Пациент записан на приём. Врач увидит его в своём кабинете.");
+                await refreshLiveData(true);
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+
+        document.getElementById("documentForm")?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            try {
+                const result = await clinicRequest("/api/documents", "POST", {
+                    patient_id: Number(document.getElementById("documentPatient").value),
+                    partner_id: Number(document.getElementById("documentPartner").value),
+                    document_type: document.getElementById("documentType").value,
+                    details: document.getElementById("documentDetails").value
+                });
+                showNotice(result.message);
+                event.target.reset();
+                await refreshLiveData(true);
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+
+        const priceForm = document.getElementById("priceForm");
+        const resetPriceForm = () => {
+            priceForm?.reset();
+            document.getElementById("priceId").value = "";
+            document.getElementById("priceSubmit").textContent = "Добавить в прайс-лист";
+            document.getElementById("priceCancel").hidden = true;
+        };
+        priceForm?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const serviceId = document.getElementById("priceId").value;
+            const service = {
+                name: document.getElementById("priceName").value,
+                specialty: document.getElementById("priceSpecialty").value,
+                price_kzt: Number(document.getElementById("priceAmount").value),
+                description: document.getElementById("priceDescription").value
+            };
+            try {
+                await clinicRequest(serviceId ? `/api/prices/${serviceId}` : "/api/prices", serviceId ? "PUT" : "POST", service);
+                resetPriceForm();
+                showNotice(serviceId ? "Цена в прайс-листе обновлена." : "Услуга добавлена в прайс-лист.");
+                await refreshLiveData(true);
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+        document.getElementById("priceCancel")?.addEventListener("click", resetPriceForm);
+
+        document.addEventListener("submit", async (event) => {
+            const form = event.target.closest(".staffIinForm");
+            if (!form) return;
+            event.preventDefault();
+            try {
+                await clinicRequest(`/api/employees/${form.dataset.employeeId}/iin`, "PATCH", {
+                    employee_iin: form.querySelector("input").value
+                });
+                showNotice("ИИН сотрудника сохранён.");
+                await refreshLiveData(true);
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+
+        document.addEventListener("click", async (event) => {
+            const statusButton = event.target.closest("[data-appointment-status]");
+            const editPriceButton = event.target.closest("[data-edit-price]");
+            const deletePriceButton = event.target.closest("[data-delete-price]");
+            const deleteEmployeeButton = event.target.closest("[data-delete-employee]");
+            try {
+                if (statusButton) {
+                    await clinicRequest(`/api/appointments/${statusButton.dataset.appointmentId}`, "PATCH", {
+                        status: statusButton.dataset.appointmentStatus
+                    });
+                    showNotice("Статус приёма обновлён.");
+                    await refreshLiveData(true);
+                } else if (editPriceButton) {
+                    document.getElementById("priceId").value = editPriceButton.dataset.editPrice;
+                    document.getElementById("priceName").value = editPriceButton.dataset.name;
+                    document.getElementById("priceSpecialty").value = editPriceButton.dataset.specialty;
+                    document.getElementById("priceAmount").value = editPriceButton.dataset.price;
+                    document.getElementById("priceDescription").value = editPriceButton.dataset.description;
+                    document.getElementById("priceSubmit").textContent = "Сохранить цену";
+                    document.getElementById("priceCancel").hidden = false;
+                    document.getElementById("priceForm").scrollIntoView({behavior: "smooth", block: "center"});
+                } else if (deletePriceButton) {
+                    if (!window.confirm(`Удалить услугу «${deletePriceButton.dataset.priceName}» из прайс-листа?`)) return;
+                    await clinicRequest(`/api/prices/${deletePriceButton.dataset.deletePrice}`, "DELETE");
+                    showNotice("Услуга удалена из прайс-листа.");
+                    await refreshLiveData(true);
+                } else if (deleteEmployeeButton) {
+                    if (!window.confirm(`Удалить сотрудника «${deleteEmployeeButton.dataset.employeeName}»?`)) return;
+                    await clinicRequest(`/api/employees/${deleteEmployeeButton.dataset.deleteEmployee}`, "DELETE");
+                    showNotice(`Сотрудник «${deleteEmployeeButton.dataset.employeeName}» удалён.`);
+                    await refreshLiveData(true);
+                }
+            } catch (error) {
+                showNotice(error.message, true);
+            }
+        });
+    </script>
+</body>
+</html>

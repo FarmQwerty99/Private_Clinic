@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Портал медицинской организации</title>
+    <style>
+        :root {
+            --navy: #18384b;
+            --teal: #167d82;
+            --paper: #fff;
+            --canvas: #f2f6f7;
+            --ink: #263b48;
+            --muted: #687d88;
+            --line: #dce6e9;
+            --mint: #e7f5f2;
+        }
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--canvas);
+            color: var(--ink);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        button, input, select { font: inherit; }
+        header {
+            min-height: 72px;
+            padding: 14px clamp(18px, 5vw, 70px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            background: var(--navy);
+            color: #fff;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .mark {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #ffffff50;
+            border-radius: 12px;
+            color: #b7ece2;
+            font-size: 24px;
+        }
+        .brand-title { font-weight: 700; }
+        .brand-subtitle { margin-top: 3px; color: #c1d5df; font-size: 12px; }
+        main { width: min(1200px, 100%); margin: 0 auto; padding: 30px 20px; flex: 1; }
+        .card {
+            padding: 23px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            background: var(--paper);
+            box-shadow: 0 12px 30px #18384b10;
+        }
+        .login-card { width: min(100%, 430px); margin: 5vh auto; padding: 30px; }
+        h1, h2, p { margin-top: 0; }
+        h1 { margin-bottom: 8px; color: var(--navy); font-size: 24px; }
+        .muted { color: var(--muted); line-height: 1.5; }
+        .field { display: grid; gap: 7px; margin-top: 16px; }
+        label { color: #405865; font-size: 13px; font-weight: 650; }
+        input, select {
+            width: 100%;
+            min-height: 43px;
+            padding: 10px 12px;
+            border: 1px solid #cbd9df;
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+        }
+        .button {
+            min-height: 40px;
+            padding: 9px 14px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--teal);
+            color: #fff;
+            font-weight: 650;
+            cursor: pointer;
+        }
+        .button:hover { background: #11676c; }
+        .button-muted { background: #edf5f5; color: #18575b; }
+        .button-muted:hover { background: #d9edeb; }
+        .button-row { display: flex; flex-wrap: wrap; gap: 7px; }
+        .login-card .button { width: 100%; margin-top: 20px; }
+        .org-pill, .status {
+            display: inline-flex;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--mint);
+            color: #17635d;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .section-head { margin: 25px 0 16px; }
+        .section-head h1 { margin-bottom: 5px; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e8eef0;
+            text-align: left;
+            vertical-align: top;
+            font-size: 13px;
+        }
+        th { background: #f5f9fa; color: var(--muted); font-size: 11px; text-transform: uppercase; }
+        .empty { padding: 30px; color: var(--muted); text-align: center; }
+        .notice {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            max-width: min(420px, calc(100vw - 32px));
+            padding: 13px 17px;
+            border: 1px solid #edc6c6;
+            border-radius: 9px;
+            background: #fff5f4;
+            color: #8c3237;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+        .notice.visible { opacity: 1; }
+        footer { padding: 18px; background: var(--navy); color: #c1d5df; font-size: 12px; text-align: center; }
+        @media (max-width: 700px) {
+            main { padding: 20px 12px; }
+            .card { padding: 16px; }
+            .account-role { display: none; }
+        }
+    </style>
+</head>
+<body>
+    {% if partner %}
+    <header>
+        <div class="brand">
+            <div class="mark" aria-hidden="true">+</div>
+            <div>
+                <div class="brand-title">Портал медицинской организации</div>
+                <div class="brand-subtitle">Защищённый обмен направлениями клиники</div>
+            </div>
+        </div>
+        <div class="button-row">
+            <span class="org-pill">{{ partner.name }}</span>
+            <button class="button button-muted" id="logoutButton" type="button">Выйти</button>
+        </div>
+    </header>
+    {% endif %}
+
+    <main>
+        {% if not partner %}
+        <section class="card login-card">
+            <div class="mark" style="background:#e7f5f2;color:#167d82">+</div>
+            <h1 style="margin-top:18px">Вход для организации</h1>
+            <p class="muted">После входа отображаются только документы, адресованные вашей аптеке или больнице.</p>
+            <form id="loginForm">
+                <div class="field">
+                    <label for="partnerLogin">Организация</label>
+                    <select id="partnerLogin" required>
+                        <option value="pharmacy">Центральная Аптека №1</option>
+                        <option value="hospital">Городская Больница №2</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="partnerPassword">Пароль организации</label>
+                    <input id="partnerPassword" type="password" autocomplete="current-password" required>
+                </div>
+                <button class="button" type="submit">Войти в портал</button>
+            </form>
+        </section>
+        {% else %}
+        <section class="section-head">
+            <h1>Входящие медицинские документы</h1>
+            <p class="muted">Принимайте поступившие направления и обновляйте состояние их исполнения.</p>
+        </section>
+        <section class="card">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Поступил</th>
+                            <th>Документ</th>
+                            <th>Пациент</th>
+                            <th>Медкарта</th>
+                            <th>Врач</th>
+                            <th>Назначение</th>
+                            <th>Состояние</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in documents %}
+                        <tr>
+                            <td>{{ document.created_at }}</td>
+                            <td>{{ document.document_type }}</td>
+                            <td>{{ document.patient_name }}</td>
+                            <td>{{ document.med_card_num }}</td>
+                            <td>{{ document.doctor_name }} · {{ document.doctor_specialty }}</td>
+                            <td>{{ document.details }}</td>
+                            <td><span class="status">{{ document.status }}</span></td>
+                            <td>
+                                {% if document.status == "Передан" %}
+                                <button class="button" type="button" data-document-id="{{ document.id }}" data-status="Получен">Подтвердить получение</button>
+                                {% elif document.status == "Получен" %}
+                                <button class="button" type="button" data-document-id="{{ document.id }}" data-status="Исполнен">Отметить исполненным</button>
+                                {% else %}Завершено{% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td class="empty" colspan="8">Новых документов пока нет.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer>Медицинская организация · отдельный портал получения документов</footer>
+    <div class="notice" id="notice" role="status" aria-live="polite"></div>
+    <script>
+        const portalBase = {{ base_path|tojson }};
+        let noticeTimer;
+
+        function showNotice(message) {
+            const notice = document.getElementById("notice");
+            notice.textContent = message;
+            notice.classList.add("visible");
+            window.clearTimeout(noticeTimer);
+            noticeTimer = window.setTimeout(() => notice.classList.remove("visible"), 4200);
+        }
+
+        async function portalRequest(url, method = "GET", data = null) {
+            const options = {method, headers: {}};
+            if (data !== null) {
+                options.headers["Content-Type"] = "application/json";
+                options.body = JSON.stringify(data);
+            }
+            const response = await fetch(url, options);
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.detail || "Не удалось выполнить действие.");
+            }
+            return result;
+        }
+
+        const loginForm = document.getElementById("loginForm");
+        if (loginForm) {
+            loginForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                try {
+                    await portalRequest(`${portalBase}/auth/login`, "POST", {
+                        login: document.getElementById("partnerLogin").value,
+                        password: document.getElementById("partnerPassword").value
+                    });
+                    window.location.reload();
+                } catch (error) {
+                    showNotice(error.message);
+                }
+            });
+        }
+
+        const logoutButton = document.getElementById("logoutButton");
+        if (logoutButton) {
+            logoutButton.addEventListener("click", async () => {
+                try {
+                    await portalRequest(`${portalBase}/auth/logout`, "POST");
+                    window.location.reload();
+                } catch (error) {
+                    showNotice(error.message);
+                }
+            });
+        }
+
+        document.addEventListener("click", async (event) => {
+            const button = event.target.closest("[data-document-id]");
+            if (!button) return;
+            try {
+                await portalRequest(`${portalBase}/api/documents/${button.dataset.documentId}`, "PATCH", {
+                    status: button.dataset.status
+                });
+                window.location.reload();
+            } catch (error) {
+                showNotice(error.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<div class="panel">
+    <h2 class="panel-heading">Направления и рецепты для медицинских организаций</h2>
+    <p class="muted">
+        <a href="{{ partner_portal_url }}" target="_blank" rel="noopener">Открыть портал принимающей организации</a>
+        — отдельный сайт, где получатель подтверждает поступление документа.
+    </p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Передан</th>
+                    <th>Вид документа</th>
+                    <th>Пациент</th>
+                    <th>Медкарта</th>
+                    <th>Врач</th>
+                    <th>Организация</th>
+                    <th>Содержание</th>
+                    <th>Статус доставки</th>
+                </tr>
+            </thead>
+            <tbody id="medicalDocumentRows">
+                {% for document in medical_documents %}
+                <tr>
+                    <td>{{ document.created_at }}</td>
+                    <td>{{ document.document_type }}</td>
+                    <td>{{ document.patient_name }}</td>
+                    <td>{{ document.med_card_num }}</td>
+                    <td>{{ document.doctor_name }}</td>
+                    <td>{{ document.organization }}</td>
+                    <td>{{ document.details }}</td>
+                    <td><span class="status-pill">{{ document.status }}</span></td>
+                </tr>
+                {% else %}
+                <tr><td class="empty-row" colspan="8">Переданных документов пока нет.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

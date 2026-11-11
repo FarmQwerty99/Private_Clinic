@@ -1,0 +1,42 @@
+<div class="panel">
+    <h2 class="panel-heading">Расписание консультаций</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата и время</th>
+                    <th>Пациент</th>
+                    <th>Медицинская карта</th>
+                    <th>Врач</th>
+                    <th>Кабинет</th>
+                    <th>Статус</th>
+                    {% if show_actions %}<th>Действие</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody id="{{ 'appointmentRowsDoctor' if show_actions else 'appointmentRowsJournal' }}">
+                {% for appointment in schedule %}
+                <tr>
+                    <td>{{ appointment.appointment_time }}</td>
+                    <td>{{ appointment.patient_name }}</td>
+                    <td><span class="status-pill">{{ appointment.med_card_num }}</span></td>
+                    <td>{{ appointment.doctor_name }} · {{ appointment.doctor_specialty }}</td>
+                    <td>{{ appointment.cabinet }}</td>
+                    <td>{{ appointment.status }}</td>
+                    {% if show_actions %}
+                    <td>
+                        {% if appointment.status == "Запланирован" %}
+                        <div class="table-actions">
+                            <button class="button button-quiet" type="button" data-appointment-id="{{ appointment.id }}" data-appointment-status="Приём завершён">Завершить</button>
+                            <button class="button button-danger button-quiet" type="button" data-appointment-id="{{ appointment.id }}" data-appointment-status="Отменён">Отменить</button>
+                        </div>
+                        {% else %}—{% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr><td class="empty-row" colspan="{{ 7 if show_actions else 6 }}">Записей пока нет.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
